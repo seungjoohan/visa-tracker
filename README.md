@@ -61,12 +61,17 @@ python scripts/run_daily.py
 uvicorn app.main:app --reload
 ```
 
-### 5. Set Up Automated Schedule
+### 5. Set Up Automated Schedule (Github Actions)
 
 ```bash
-github actions for automated mail coming soon
-```
+# 1. GitHub Repository 생성 및 업로드
+git add .
+git commit -m "feat: Complete visa news tracker"
+git remote add origin https://github.com/yourusername/visa-tracker.git
+git push -u origin main
 
+# 2. GitHub Secrets 설정 (Repository Settings → Secrets)
+# NEWSAPI_KEY, EMAIL_USER, EMAIL_PASSWORD, EMAIL_RECIPIENTS
 ```
 
 ## 📁 Project Structure
@@ -94,7 +99,7 @@ visa-tracker/
 │ └── run_daily.py # CLI execution script
 └── requirements.txt # Dependencies
 
-````
+```
 
 ## 🔮 Future Enhancements
 
@@ -117,4 +122,4 @@ RELEVANCE_THRESHOLD=0.5
 # Classification Keywords (JSON arrays)
 URGENT_KEYWORDS=["ban", "suspended", "emergency"]
 IMPORTANT_KEYWORDS=["policy", "change", "update"]
-````
+```
