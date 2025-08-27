@@ -29,8 +29,8 @@ jobs:
           echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> .env
           echo "EMAIL_RECIPIENTS=${{ secrets.EMAIL_RECIPIENTS }}" >> .env
-          echo "SMTP_SERVER=smtp.gmail.com" >> .env
-          echo "SMTP_PORT=587" >> .env
+          echo "SMTP_SERVER=${{ secrets.SMTP_SERVER }}" >> .env
+          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
 
       - name: Run daily news processing
         run: |
@@ -38,7 +38,7 @@ jobs:
 
       - name: Upload logs (if any)
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: daily-logs
           path: logs/
