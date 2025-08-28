@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 import aiohttp
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import quote
 from app.models.news import NewsArticle, NewsSource
 import logging
@@ -25,11 +25,15 @@ class NewsAPICollector(NewsCollectorInterface):
             # 키워드를 OR 조건으로 결합
             query = " OR ".join([f'"{keyword}"' for keyword in keywords])
             
+            # 최근 2일간의 뉴스만 수집 (API 효율성 향상)
+            from_date = datetime.now() - timedelta(days=2)
+            
             params = {
                 "q": query,
                 "language": "en",
                 "sortBy": "publishedAt",
                 "pageSize": min(self.max_articles, 100),  # API 제한
+                "from": from_date.strftime("%Y-%m-%d"),
                 "apiKey": self.api_key,
                 "domains": "reuters.com,bloomberg.com,cnn.com,bbc.com,apnews.com,wsj.com,ft.com,politico.com,axios.com,thehill.com"
             }
