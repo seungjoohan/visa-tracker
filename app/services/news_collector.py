@@ -25,8 +25,8 @@ class NewsAPICollector(NewsCollectorInterface):
             # 키워드를 OR 조건으로 결합
             query = " OR ".join([f'"{keyword}"' for keyword in keywords])
             
-            # 최근 2일간의 뉴스만 수집 (API 효율성 향상)
-            from_date = datetime.now() - timedelta(days=2)
+            # 최근 1일간의 뉴스만 수집 (API 효율성 향상)
+            from_date = datetime.now() - timedelta(days=1)
             
             params = {
                 "q": query,

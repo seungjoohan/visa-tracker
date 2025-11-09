@@ -77,6 +77,11 @@ class EmailService:
         
         return categorized
     
+    def summarize_news_content():
+        # summarize each article
+        pass
+
+
     def _generate_email_content(self, categorized_articles: Dict[ImportanceLevel, List[NewsArticle]]) -> str:
         """이메일 HTML 콘텐츠 생성"""
         total_articles = sum(len(articles) for articles in categorized_articles.values())
