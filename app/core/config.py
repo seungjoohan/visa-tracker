@@ -56,18 +56,37 @@ class Settings(BaseSettings):
         "eligibility", "rule", "regulation", "law", "bill", "announcement"
     ])
     
-    # File paths  
+    # Vector Store / RAG Settings
+    # embedding_model: Which sentence-transformer model to use for creating embeddings.
+    #   Must match the model used during ingestion — if you change this, re-ingest everything.
+    embedding_model: str = Field(default="all-MiniLM-L6-v2")
+    # embedding_dimension: The output vector size of the embedding model.
+    #   all-MiniLM-L6-v2 = 384 dimensions, all-mpnet-base-v2 = 768 dimensions.
+    embedding_dimension: int = Field(default=384)
+    # retrieval_top_k: How many chunks to retrieve from the vector store per query.
+    #   More = more context for the LLM but also more noise and higher token cost.
+    retrieval_top_k: int = Field(default=5)
+
+    # File paths
     @property
     def base_dir(self) -> Path:
         return Path(__file__).parent.parent.parent
-    
+
     @property
     def config_dir(self) -> Path:
         return self.base_dir / "config"
-        
+
     @property
     def logs_dir(self) -> Path:
         return self.base_dir / "logs"
+
+    @property
+    def knowledge_base_dir(self) -> Path:
+        return self.base_dir / "knowledge_base"
+
+    @property
+    def index_dir(self) -> Path:
+        return self.knowledge_base_dir / "index"
     
     class Config:
         env_file = ".env"
