@@ -71,8 +71,8 @@ class VectorStore:
     def __init__(
         self,
         index_dir: str,
-        embedding_model_name: str = "all-MiniLM-L6-v2",
-        embedding_dimension: int = 384,
+        embedding_model_name: str = "BAAI/bge-base-en-v1.5",
+        embedding_dimension: int = 768,
     ):
         """
         Args:

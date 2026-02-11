@@ -44,6 +44,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.models.policy import SourceType
+from app.core.config import settings
 from app.services.vector_store import VectorStore
 from app.services.knowledge_ingester import KnowledgeIngester
 
@@ -535,7 +536,14 @@ def main():
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
     # Initialize vector store and ingester
-    store = VectorStore(index_dir=str(INDEX_DIR))
+    # Read embedding model config from settings so the ingestion script stays
+    # in sync with the rest of the app. If you change the model in config.py,
+    # re-run this script with --clear to rebuild the index.
+    store = VectorStore(
+        index_dir=str(INDEX_DIR),
+        embedding_model_name=settings.embedding_model,
+        embedding_dimension=settings.embedding_dimension,
+    )
 
     if args.clear:
         logger.info("Clearing existing knowledge base...")
