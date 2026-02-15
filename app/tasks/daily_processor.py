@@ -58,12 +58,27 @@ async def run_daily_process():
         analyzed_articles = []
         for article in relevant_articles:
             try:
-                # 중요도 분류
-                article.importance_level = await analyzer.classify_importance(article)
-                
-                # 요약 생성
-                article.summary = await analyzer.generate_summary(article)
-                
+                # Try full LLM+RAG analysis first (result is cached internally)
+                analysis = await analyzer.analyze_article(article)
+
+                if analysis:
+                    # Use LLM-derived results
+                    from app.models.news import ImportanceLevel
+                    importance_map = {
+                        "needs_attention": ImportanceLevel.NEEDS_ATTENTION,
+                        "good_to_know": ImportanceLevel.GOOD_TO_KNOW,
+                        "no_attention_required": ImportanceLevel.NO_ATTENTION_REQUIRED,
+                    }
+                    article.importance_level = importance_map.get(
+                        analysis.importance, ImportanceLevel.NO_ATTENTION_REQUIRED
+                    )
+                    article.summary = analysis.impact_summary
+                    article.analysis_result = analysis
+                else:
+                    # Fallback to keyword+semantic classification
+                    article.importance_level = await analyzer.classify_importance(article)
+                    article.summary = await analyzer.generate_summary(article)
+
                 analyzed_articles.append(article)
                 
             except Exception as e:
