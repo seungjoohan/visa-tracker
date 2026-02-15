@@ -80,11 +80,12 @@ class ClaudeProvider(LLMProvider):
 
     # Pricing per 1M tokens (update when Anthropic changes pricing)
     PRICING = {
+        "claude-haiku-4-5-20251001": {"input": 0.80, "output": 4.00},
         "claude-3-5-haiku-20241022": {"input": 0.80, "output": 4.00},
         "claude-3-haiku-20240307": {"input": 0.25, "output": 1.25},
     }
 
-    def __init__(self, api_key: str, model: str = "claude-3-5-haiku-20241022"):
+    def __init__(self, api_key: str, model: str = "claude-haiku-4-5-20251001"):
         self.api_key = api_key
         self.model = model
         self._client = None

@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # .env 파일 먼저 로드
-load_dotenv()
+load_dotenv(override=True)
 
 class Settings(BaseSettings):
     # API Keys
@@ -73,7 +73,7 @@ class Settings(BaseSettings):
     # anthropic_api_key: Get from console.anthropic.com. Empty string = LLM disabled.
     anthropic_api_key: str = Field(default="", env="ANTHROPIC_API_KEY")
     # llm_model: Which Claude model to use. Haiku = cheapest + fastest.
-    llm_model: str = Field(default="claude-3-5-haiku-20241022", env="LLM_MODEL")
+    llm_model: str = Field(default="claude-haiku-4-5-20251001", env="LLM_MODEL")
     # llm_temperature: 0.0 = deterministic output (best for classification).
     llm_temperature: float = Field(default=0.0)
     # llm_max_tokens: Max output tokens. 1024 is plenty for structured JSON.
