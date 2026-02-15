@@ -1,7 +1,8 @@
+from __future__ import annotations
 from pydantic import BaseModel, HttpUrl
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Any
 
 class ImportanceLevel(Enum):
     NEEDS_ATTENTION = "needs_attention"

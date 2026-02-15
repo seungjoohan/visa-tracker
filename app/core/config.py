@@ -69,6 +69,18 @@ class Settings(BaseSettings):
     #   More = more context for the LLM but also more noise and higher token cost.
     retrieval_top_k: int = Field(default=5)
 
+    # LLM Settings
+    # anthropic_api_key: Get from console.anthropic.com. Empty string = LLM disabled.
+    anthropic_api_key: str = Field(default="", env="ANTHROPIC_API_KEY")
+    # llm_model: Which Claude model to use. Haiku = cheapest + fastest.
+    llm_model: str = Field(default="claude-3-5-haiku-20241022", env="LLM_MODEL")
+    # llm_temperature: 0.0 = deterministic output (best for classification).
+    llm_temperature: float = Field(default=0.0)
+    # llm_max_tokens: Max output tokens. 1024 is plenty for structured JSON.
+    llm_max_tokens: int = Field(default=1024)
+    # use_llm: Master kill switch. False = skip LLM, use keyword+semantic only.
+    use_llm: bool = Field(default=True, env="USE_LLM")
+
     # File paths
     @property
     def base_dir(self) -> Path:
@@ -89,6 +101,10 @@ class Settings(BaseSettings):
     @property
     def index_dir(self) -> Path:
         return self.knowledge_base_dir / "index"
+
+    @property
+    def prompts_dir(self) -> Path:
+        return self.config_dir / "prompts"
     
     class Config:
         env_file = ".env"
