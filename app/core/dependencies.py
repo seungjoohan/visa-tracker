@@ -1,6 +1,7 @@
 from functools import lru_cache
 from fastapi import Depends
-from typing import List
+from typing import List, Optional
+import logging
 
 from app.core.config import settings, Settings
 from app.services.news_collector import NewsAPICollector, WhiteHouseCollector, NewsCollectorInterface
@@ -8,6 +9,11 @@ from app.services.news_analyzer import NewsAnalyzer
 from app.services.email_service import EmailService
 from app.services.vector_store import VectorStore
 from app.services.knowledge_ingester import KnowledgeIngester
+from app.services.llm_provider import LLMProvider, ClaudeProvider
+from app.services.retriever import Retriever
+from app.services.llm_usage_logger import LLMUsageLogger
+
+logger = logging.getLogger(__name__)
 
 @lru_cache()
 def get_settings() -> Settings:
@@ -31,9 +37,38 @@ def get_news_collectors() -> List[NewsCollectorInterface]:
     
     return collectors
 
+def get_llm_provider() -> Optional[LLMProvider]:
+    """
+    LLM provider dependency injection.
+    Returns None if no API key configured or use_llm=False.
+    When None, the analyzer falls back to keyword+semantic classification.
+    """
+    if not settings.use_llm or not settings.anthropic_api_key:
+        logger.info("LLM disabled or no API key — using keyword+semantic only")
+        return None
+    return ClaudeProvider(
+        api_key=settings.anthropic_api_key,
+        model=settings.llm_model,
+    )
+
+def get_retriever() -> Optional[Retriever]:
+    """Retriever dependency injection. Returns None if vector store is empty."""
+    store = get_vector_store()
+    if store.index is None or store.index.ntotal == 0:
+        return None
+    return Retriever(vector_store=store, top_k=settings.retrieval_top_k)
+
+def get_llm_usage_logger() -> LLMUsageLogger:
+    """LLM usage logger dependency injection."""
+    return LLMUsageLogger(log_dir=settings.logs_dir)
+
 def get_news_analyzer() -> NewsAnalyzer:
-    """뉴스 분석기 의존성 주입"""
-    return NewsAnalyzer()
+    """뉴스 분석기 의존성 주입 — now with LLM + RAG components."""
+    return NewsAnalyzer(
+        llm_provider=get_llm_provider(),
+        retriever=get_retriever(),
+        usage_logger=get_llm_usage_logger(),
+    )
 
 def get_email_service() -> EmailService:
     """이메일 서비스 의존성 주입"""

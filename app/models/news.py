@@ -24,6 +24,9 @@ class NewsArticle(BaseModel):
     importance_level: Optional[ImportanceLevel]
     relevance_score: Optional[float] = None
     summary: Optional[str] = None
+    # LLM-derived structured analysis (None if LLM unavailable or failed).
+    # Stored as Any to avoid circular import — actual type is AnalysisResult from llm.py.
+    analysis_result: Optional[Any] = None
 
 class AnalyzedNews(BaseModel):
     article: NewsArticle
