@@ -3,145 +3,124 @@
 <head>
     <meta charset="utf-8">
     <title>Visa News Summary</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-        .container { max-width: 700px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .header h1 { margin: 0; font-size: 1.8em; font-weight: 300; }
-        .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 0.95em; }
-        .body { background: white; padding: 25px; border-radius: 0 0 8px 8px; }
-
-        /* Stats row */
-        .stats-row { display: flex; justify-content: center; gap: 0; margin-bottom: 20px; border: 1px solid #e1e8ed; border-radius: 8px; overflow: hidden; }
-        .stat-cell { flex: 1; text-align: center; padding: 16px 10px; }
-        .stat-cell + .stat-cell { border-left: 1px solid #e1e8ed; }
-        .stat-number { font-size: 1.6em; font-weight: 700; }
-        .stat-label { font-size: 0.8em; color: #7f8c8d; margin-top: 2px; }
-        .stat-attention .stat-number { color: #e74c3c; }
-        .stat-know .stat-number { color: #f39c12; }
-        .stat-general .stat-number { color: #95a5a6; }
-
-        /* Daily summary line */
-        .daily-summary { color: #555; font-size: 0.95em; margin-bottom: 25px; padding: 12px 16px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #667eea; }
-
-        /* Category sections */
-        .section { margin-bottom: 25px; }
-        .section-header { font-size: 1.1em; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; }
-        .section-attention .section-header { color: #e74c3c; border-color: #e74c3c; }
-        .section-know .section-header { color: #e67e22; border-color: #f39c12; }
-        .section-general .section-header { color: #7f8c8d; border-color: #95a5a6; }
-
-        /* Article items */
-        .article-item { padding: 10px 0; }
-        .article-item + .article-item { border-top: 1px solid #f0f0f0; }
-        .article-title { font-weight: 500; color: #2c3e50; font-size: 0.95em; }
-        .article-title a { color: #2c3e50; text-decoration: none; }
-        .article-title a:hover { color: #3498db; text-decoration: underline; }
-        .article-summary { color: #666; font-size: 0.88em; margin-top: 4px; line-height: 1.5; }
-        .article-meta { font-size: 0.78em; color: #999; margin-top: 4px; }
-        .article-meta .deadline { color: #e74c3c; font-weight: 600; }
-        .article-meta .visa-types { color: #667eea; }
-
-        .footer { text-align: center; margin-top: 20px; padding: 15px; color: #aaa; font-size: 0.8em; }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Visa News Summary</h1>
-            <p>{{ date }}</p>
-        </div>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5;">
+    <!-- Outer container -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td align="center" style="padding: 20px;">
+    <table width="700" cellpadding="0" cellspacing="0" border="0" style="max-width: 700px;">
 
-        <div class="body">
-            <!-- Stats row: 3 columns -->
-            <div class="stats-row">
-                <div class="stat-cell stat-attention">
-                    <div class="stat-number">{{ needs_attention|length }}</div>
-                    <div class="stat-label">Needs Attention</div>
-                </div>
-                <div class="stat-cell stat-know">
-                    <div class="stat-number">{{ good_to_know|length }}</div>
-                    <div class="stat-label">Good to Know</div>
-                </div>
-                <div class="stat-cell stat-general">
-                    <div class="stat-number">{{ no_attention|length }}</div>
-                    <div class="stat-label">General</div>
-                </div>
-            </div>
+        <!-- Header -->
+        <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-color: #667eea; color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0;">
+                <h1 style="margin: 0; font-size: 1.8em; font-weight: 300;">Visa News Summary</h1>
+                <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 0.95em;">{{ date }}</p>
+            </td>
+        </tr>
 
-            <!-- One-line daily summary -->
-            <div class="daily-summary">{{ daily_summary }}</div>
+        <!-- Body -->
+        <tr>
+            <td style="background: white; padding: 25px; border-radius: 0 0 8px 8px;">
 
-            <!-- Needs Attention -->
-            {% if needs_attention %}
-            <div class="section section-attention">
-                <div class="section-header">Needs Attention</div>
-                {% for article in needs_attention %}
-                <div class="article-item">
-                    <div class="article-title">
-                        {% if article.url %}<a href="{{ article.url }}" target="_blank">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
-                    </div>
-                    {% if article.summary %}
-                    <div class="article-summary">{{ article.summary }}</div>
-                    {% endif %}
-                    <div class="article-meta">
-                        {{ article.published_at.strftime('%b %d, %Y') }}
-                        {% if article.analysis_result and article.analysis_result.deadline %}
-                        &middot; <span class="deadline">Deadline: {{ article.analysis_result.deadline }}</span>
+                <!-- Stats row as table -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px; border: 1px solid #e1e8ed; border-radius: 8px; border-collapse: separate;">
+                    <tr>
+                        <td width="33%" style="text-align: center; padding: 16px 10px;">
+                            <div style="font-size: 1.6em; font-weight: 700; color: #e74c3c;">{{ needs_attention|length }}</div>
+                            <div style="font-size: 0.8em; color: #7f8c8d; margin-top: 2px;">Needs Attention</div>
+                        </td>
+                        <td width="34%" style="text-align: center; padding: 16px 10px; border-left: 1px solid #e1e8ed; border-right: 1px solid #e1e8ed;">
+                            <div style="font-size: 1.6em; font-weight: 700; color: #f39c12;">{{ good_to_know|length }}</div>
+                            <div style="font-size: 0.8em; color: #7f8c8d; margin-top: 2px;">Good to Know</div>
+                        </td>
+                        <td width="33%" style="text-align: center; padding: 16px 10px;">
+                            <div style="font-size: 1.6em; font-weight: 700; color: #95a5a6;">{{ no_attention|length }}</div>
+                            <div style="font-size: 0.8em; color: #7f8c8d; margin-top: 2px;">General</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Daily summary -->
+                <div style="color: #555; font-size: 0.95em; margin-bottom: 25px; padding: 12px 16px; background: #f8f9fa; border-left: 3px solid #667eea;">{{ daily_summary }}</div>
+
+                <!-- Needs Attention -->
+                {% if needs_attention %}
+                <div style="margin-bottom: 25px;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #e74c3c; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e74c3c;">Needs Attention</div>
+                    {% for article in needs_attention %}
+                    <div style="padding: 10px 0;{% if not loop.first %} border-top: 1px solid #f0f0f0;{% endif %}">
+                        <div style="font-weight: 500; color: #2c3e50; font-size: 0.95em;">
+                            {% if article.url %}<a href="{{ article.url }}" target="_blank" style="color: #2c3e50; text-decoration: none;">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
+                        </div>
+                        {% if article.summary %}
+                        <div style="color: #666; font-size: 0.88em; margin-top: 4px; line-height: 1.5;">{{ article.summary }}</div>
                         {% endif %}
-                        {% if article.analysis_result and article.analysis_result.affected_visa_types %}
-                        &middot; <span class="visa-types">{{ article.analysis_result.affected_visa_types | join(', ') }}</span>
+                        <div style="font-size: 0.78em; color: #999; margin-top: 4px;">
+                            {{ article.published_at.strftime('%b %d, %Y') }}
+                            {% if article.analysis_result and article.analysis_result.deadline %}
+                            &middot; <span style="color: #e74c3c; font-weight: 600;">Deadline: {{ article.analysis_result.deadline }}</span>
+                            {% endif %}
+                            {% if article.analysis_result and article.analysis_result.affected_visa_types %}
+                            &middot; <span style="color: #667eea;">{{ article.analysis_result.affected_visa_types | join(', ') }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Good to Know -->
+                {% if good_to_know %}
+                <div style="margin-bottom: 25px;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #e67e22; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #f39c12;">Good to Know</div>
+                    {% for article in good_to_know %}
+                    <div style="padding: 10px 0;{% if not loop.first %} border-top: 1px solid #f0f0f0;{% endif %}">
+                        <div style="font-weight: 500; color: #2c3e50; font-size: 0.95em;">
+                            {% if article.url %}<a href="{{ article.url }}" target="_blank" style="color: #2c3e50; text-decoration: none;">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
+                        </div>
+                        {% if article.summary %}
+                        <div style="color: #666; font-size: 0.88em; margin-top: 4px; line-height: 1.5;">{{ article.summary }}</div>
                         {% endif %}
+                        <div style="font-size: 0.78em; color: #999; margin-top: 4px;">
+                            {{ article.published_at.strftime('%b %d, %Y') }}
+                            {% if article.analysis_result and article.analysis_result.affected_visa_types %}
+                            &middot; <span style="color: #667eea;">{{ article.analysis_result.affected_visa_types | join(', ') }}</span>
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <!-- Good to Know -->
-            {% if good_to_know %}
-            <div class="section section-know">
-                <div class="section-header">Good to Know</div>
-                {% for article in good_to_know %}
-                <div class="article-item">
-                    <div class="article-title">
-                        {% if article.url %}<a href="{{ article.url }}" target="_blank">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
+                <!-- General Information -->
+                {% if no_attention %}
+                <div style="margin-bottom: 25px;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #7f8c8d; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #95a5a6;">General Information</div>
+                    {% for article in no_attention %}
+                    <div style="padding: 10px 0;{% if not loop.first %} border-top: 1px solid #f0f0f0;{% endif %}">
+                        <div style="font-weight: 500; color: #2c3e50; font-size: 0.95em;">
+                            {% if article.url %}<a href="{{ article.url }}" target="_blank" style="color: #2c3e50; text-decoration: none;">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
+                        </div>
+                        <div style="font-size: 0.78em; color: #999; margin-top: 4px;">
+                            {{ article.published_at.strftime('%b %d, %Y') }}
+                        </div>
                     </div>
-                    {% if article.summary %}
-                    <div class="article-summary">{{ article.summary }}</div>
-                    {% endif %}
-                    <div class="article-meta">
-                        {{ article.published_at.strftime('%b %d, %Y') }}
-                        {% if article.analysis_result and article.analysis_result.affected_visa_types %}
-                        &middot; <span class="visa-types">{{ article.analysis_result.affected_visa_types | join(', ') }}</span>
-                        {% endif %}
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <!-- General Information -->
-            {% if no_attention %}
-            <div class="section section-general">
-                <div class="section-header">General Information</div>
-                {% for article in no_attention %}
-                <div class="article-item">
-                    <div class="article-title">
-                        {% if article.url %}<a href="{{ article.url }}" target="_blank">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
-                    </div>
-                    <div class="article-meta">
-                        {{ article.published_at.strftime('%b %d, %Y') }}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-        </div>
+            </td>
+        </tr>
 
-        <div class="footer">
-            Automatically generated by Visa News Tracker
-        </div>
-    </div>
+        <!-- Footer -->
+        <tr>
+            <td style="text-align: center; padding: 15px; color: #aaa; font-size: 0.8em;">
+                Automatically generated by Visa News Tracker
+            </td>
+        </tr>
+
+    </table>
+    </td></tr>
+    </table>
 </body>
 </html>
