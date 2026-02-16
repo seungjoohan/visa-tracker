@@ -29,6 +29,8 @@ class LLMUsageLogger:
     def __init__(self, log_dir: Path):
         self.log_dir = log_dir
         self.log_file = self.log_dir / "llm_usage.jsonl"
+        # Track last call's cost so eval classifiers can report per-article cost
+        self._last_cost: float = 0.0
 
     def log_call(
         self,
@@ -46,6 +48,8 @@ class LLMUsageLogger:
             success: Whether we successfully parsed the response
             error: Error message if success=False
         """
+        self._last_cost = response.cost_usd
+
         record = LLMUsageRecord(
             timestamp=response.timestamp,
             provider=response.provider,
