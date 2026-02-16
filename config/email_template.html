@@ -4,138 +4,143 @@
     <meta charset="utf-8">
     <title>Visa News Summary</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 700px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .header h1 { margin: 0; font-size: 2em; font-weight: 300; }
-        .header p { margin: 10px 0 0 0; opacity: 0.9; }
-        .section { margin: 30px 0; }
-        .needs-attention { border-left: 5px solid #e74c3c; background-color: #fdf2f2; padding: 20px; border-radius: 0 8px 8px 0; }
-        .good-to-know { border-left: 5px solid #f39c12; background-color: #fef9e7; padding: 20px; border-radius: 0 8px 8px 0; }
-        .no-attention { border-left: 5px solid #95a5a6; background-color: #f8f9fa; padding: 20px; border-radius: 0 8px 8px 0; }
-        .article { margin: 15px 0; padding: 20px; border: 1px solid #e1e8ed; border-radius: 8px; background-color: white; transition: box-shadow 0.2s; }
-        .article:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .article-title { font-weight: 600; color: #2c3e50; margin-bottom: 12px; font-size: 1.1em; line-height: 1.4; }
-        .article-summary { color: #555; margin-bottom: 15px; line-height: 1.5; }
-        .article-link { color: #3498db; text-decoration: none; font-weight: 500; }
-        .article-link:hover { text-decoration: underline; }
-        .article-meta { font-size: 0.85em; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 10px; }
-        .summary-stats { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 25px; border-radius: 8px; margin: 20px 0; }
-        .summary-stats h3 { margin-top: 0; color: #2c3e50; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
-        .stat-item { background: white; padding: 15px; border-radius: 6px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .stat-number { font-size: 1.5em; font-weight: bold; color: #2c3e50; }
-        .stat-label { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; }
-        .section-title { color: #2c3e50; margin-bottom: 20px; font-size: 1.4em; font-weight: 500; }
-        .footer { text-align: center; margin-top: 40px; padding: 20px; color: #7f8c8d; font-size: 0.9em; border-top: 1px solid #ecf0f1; }
-        .importance-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: 500; margin-left: 10px; }
-        .badge-attention { background-color: #e74c3c; color: white; }
-        .badge-know { background-color: #f39c12; color: white; }
-        .badge-general { background-color: #95a5a6; color: white; }
+        .header h1 { margin: 0; font-size: 1.8em; font-weight: 300; }
+        .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 0.95em; }
+        .body { background: white; padding: 25px; border-radius: 0 0 8px 8px; }
+
+        /* Stats row */
+        .stats-row { display: flex; justify-content: center; gap: 0; margin-bottom: 20px; border: 1px solid #e1e8ed; border-radius: 8px; overflow: hidden; }
+        .stat-cell { flex: 1; text-align: center; padding: 16px 10px; }
+        .stat-cell + .stat-cell { border-left: 1px solid #e1e8ed; }
+        .stat-number { font-size: 1.6em; font-weight: 700; }
+        .stat-label { font-size: 0.8em; color: #7f8c8d; margin-top: 2px; }
+        .stat-attention .stat-number { color: #e74c3c; }
+        .stat-know .stat-number { color: #f39c12; }
+        .stat-general .stat-number { color: #95a5a6; }
+
+        /* Daily summary line */
+        .daily-summary { color: #555; font-size: 0.95em; margin-bottom: 25px; padding: 12px 16px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #667eea; }
+
+        /* Category sections */
+        .section { margin-bottom: 25px; }
+        .section-header { font-size: 1.1em; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; }
+        .section-attention .section-header { color: #e74c3c; border-color: #e74c3c; }
+        .section-know .section-header { color: #e67e22; border-color: #f39c12; }
+        .section-general .section-header { color: #7f8c8d; border-color: #95a5a6; }
+
+        /* Article items */
+        .article-item { padding: 10px 0; }
+        .article-item + .article-item { border-top: 1px solid #f0f0f0; }
+        .article-title { font-weight: 500; color: #2c3e50; font-size: 0.95em; }
+        .article-title a { color: #2c3e50; text-decoration: none; }
+        .article-title a:hover { color: #3498db; text-decoration: underline; }
+        .article-summary { color: #666; font-size: 0.88em; margin-top: 4px; line-height: 1.5; }
+        .article-meta { font-size: 0.78em; color: #999; margin-top: 4px; }
+        .article-meta .deadline { color: #e74c3c; font-weight: 600; }
+        .article-meta .visa-types { color: #667eea; }
+
+        .footer { text-align: center; margin-top: 20px; padding: 15px; color: #aaa; font-size: 0.8em; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🛂 Visa News Summary</h1>
+            <h1>Visa News Summary</h1>
             <p>{{ date }}</p>
         </div>
-        
-        <div class="summary-stats">
-            <h3>📊 Today's Summary</h3>
-            <p><strong>Total {{ total_articles }} articles analyzed.</strong></p>
-            
-            <div class="stats-grid">
-                <div class="stat-item">
+
+        <div class="body">
+            <!-- Stats row: 3 columns -->
+            <div class="stats-row">
+                <div class="stat-cell stat-attention">
                     <div class="stat-number">{{ needs_attention|length }}</div>
-                    <div class="stat-label">🚨 Needs Attention</div>
+                    <div class="stat-label">Needs Attention</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-cell stat-know">
                     <div class="stat-number">{{ good_to_know|length }}</div>
-                    <div class="stat-label">📌 Good to Know</div>
+                    <div class="stat-label">Good to Know</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-cell stat-general">
                     <div class="stat-number">{{ no_attention|length }}</div>
-                    <div class="stat-label">📰 General Information</div>
+                    <div class="stat-label">General</div>
                 </div>
             </div>
-        </div>
-        
-        <!-- {% if needs_attention %}
-        <div class="section needs-attention">
-            <h2 class="section-title">🚨 Needs Attention</h2>
-            <p style="margin-top: 0; font-style: italic; color: #c0392b;">Urgent updates or changes that require immediate attention.</p>
-            {% for article in needs_attention %}
-            <div class="article">
-                <div class="article-title">
-                    {{ article.title }}
-                    <span class="importance-badge badge-attention">Urgent</span>
-                </div>
-                <div class="article-summary">{{ article.summary or article.description or "No summary" }}</div>
-                <div class="article-meta">
-                    <a href="{{ article.url }}" class="article-link" target="_blank">🔗 View Original</a> | 
-                    📅 {{ article.published_at.strftime('%Y-%m-%d %H:%M') }} | 
-                    📊 Relevance: {{ "%.0f"|format(article.relevance_score * 100) }}%
-                    {% if article.keywords %}
-                    | 🏷️ {{ article.keywords[:3] | join(', ') }}
+
+            <!-- One-line daily summary -->
+            <div class="daily-summary">{{ daily_summary }}</div>
+
+            <!-- Needs Attention -->
+            {% if needs_attention %}
+            <div class="section section-attention">
+                <div class="section-header">Needs Attention</div>
+                {% for article in needs_attention %}
+                <div class="article-item">
+                    <div class="article-title">
+                        {% if article.url %}<a href="{{ article.url }}" target="_blank">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
+                    </div>
+                    {% if article.summary %}
+                    <div class="article-summary">{{ article.summary }}</div>
                     {% endif %}
+                    <div class="article-meta">
+                        {{ article.published_at.strftime('%b %d, %Y') }}
+                        {% if article.analysis_result and article.analysis_result.deadline %}
+                        &middot; <span class="deadline">Deadline: {{ article.analysis_result.deadline }}</span>
+                        {% endif %}
+                        {% if article.analysis_result and article.analysis_result.affected_visa_types %}
+                        &middot; <span class="visa-types">{{ article.analysis_result.affected_visa_types | join(', ') }}</span>
+                        {% endif %}
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-        {% endif %} -->
-        
-        {% if good_to_know %}
-        <div class="section good-to-know">
-            <h2 class="section-title">📌 Good to Know</h2>
-            <p style="margin-top: 0; font-style: italic; color: #d68910;">Useful information but not immediately actionable.</p>
-            {% for article in good_to_know %}
-            <div class="article">
-                <div class="article-title">
-                    {{ article.title }}
-                    <span class="importance-badge badge-know">Important</span>
-                </div>
-                <div class="article-summary">{{ article.summary or article.description or "No summary" }}</div>
-                <div class="article-meta">
-                    <a href="{{ article.url }}" class="article-link" target="_blank">🔗 View Original</a> | 
-                    📅 {{ article.published_at.strftime('%Y-%m-%d %H:%M') }} | 
-                    📊 Relevance: {{ "%.0f"|format(article.relevance_score * 100) }}%
-                    {% if article.keywords %}
-                    | 🏷️ {{ article.keywords[:3] | join(', ') }}
+            {% endif %}
+
+            <!-- Good to Know -->
+            {% if good_to_know %}
+            <div class="section section-know">
+                <div class="section-header">Good to Know</div>
+                {% for article in good_to_know %}
+                <div class="article-item">
+                    <div class="article-title">
+                        {% if article.url %}<a href="{{ article.url }}" target="_blank">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
+                    </div>
+                    {% if article.summary %}
+                    <div class="article-summary">{{ article.summary }}</div>
                     {% endif %}
+                    <div class="article-meta">
+                        {{ article.published_at.strftime('%b %d, %Y') }}
+                        {% if article.analysis_result and article.analysis_result.affected_visa_types %}
+                        &middot; <span class="visa-types">{{ article.analysis_result.affected_visa_types | join(', ') }}</span>
+                        {% endif %}
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        
-        <!-- {% if no_attention %}
-        <div class="section no-attention">
-            <h2 class="section-title">📰 일반 정보 (No Attention Required)</h2>
-            <p style="margin-top: 0; font-style: italic; color: #5d6d7e;">배경 정보나 일반적인 뉴스입니다.</p>
-            {% for article in no_attention %}
-            <div class="article">
-                <div class="article-title">
-                    {{ article.title }}
-                    <span class="importance-badge badge-general">일반</span>
+            {% endif %}
+
+            <!-- General Information -->
+            {% if no_attention %}
+            <div class="section section-general">
+                <div class="section-header">General Information</div>
+                {% for article in no_attention %}
+                <div class="article-item">
+                    <div class="article-title">
+                        {% if article.url %}<a href="{{ article.url }}" target="_blank">{{ article.title }}</a>{% else %}{{ article.title }}{% endif %}
+                    </div>
+                    <div class="article-meta">
+                        {{ article.published_at.strftime('%b %d, %Y') }}
+                    </div>
                 </div>
-                <div class="article-summary">{{ article.summary or article.description or "요약 없음" }}</div>
-                <div class="article-meta">
-                    <a href="{{ article.url }}" class="article-link" target="_blank">🔗 원문 보기</a> | 
-                    📅 {{ article.published_at.strftime('%Y-%m-%d %H:%M') }} | 
-                    📊 관련도: {{ "%.0f"|format(article.relevance_score * 100) }}%
-                    {% if article.keywords %}
-                    | 🏷️ {{ article.keywords[:3] | join(', ') }}
-                    {% endif %}
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% endif %}
         </div>
-        {% endif %} -->
-        
+
         <div class="footer">
-            <p>🤖 This email was automatically generated by the <strong>Visa News Tracker</strong>.</p>
-            <p>For any questions or to unsubscribe, please contact the administrator.</p>
+            Automatically generated by Visa News Tracker
         </div>
     </div>
 </body>

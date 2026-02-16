@@ -31,6 +31,7 @@ jobs:
           echo "EMAIL_RECIPIENTS=${{ secrets.EMAIL_RECIPIENTS }}" >> .env
           echo "SMTP_SERVER=${{ secrets.SMTP_SERVER }}" >> .env
           echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
 
       - name: Run daily news processing
         run: |

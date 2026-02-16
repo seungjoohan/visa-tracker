@@ -85,16 +85,57 @@ class EmailService:
     def _generate_email_content(self, categorized_articles: Dict[ImportanceLevel, List[NewsArticle]]) -> str:
         """이메일 HTML 콘텐츠 생성"""
         total_articles = sum(len(articles) for articles in categorized_articles.values())
-        
+
+        na = categorized_articles[ImportanceLevel.NEEDS_ATTENTION]
+        gtk = categorized_articles[ImportanceLevel.GOOD_TO_KNOW]
+        no_att = categorized_articles[ImportanceLevel.NO_ATTENTION_REQUIRED]
+
+        # Build a one-line daily summary
+        daily_summary = self._build_daily_summary(na, gtk, no_att)
+
         context = {
             'date': datetime.now().strftime('%Y/%m/%d'),
             'total_articles': total_articles,
-            'needs_attention': categorized_articles[ImportanceLevel.NEEDS_ATTENTION],
-            'good_to_know': categorized_articles[ImportanceLevel.GOOD_TO_KNOW],
-            'no_attention': categorized_articles[ImportanceLevel.NO_ATTENTION_REQUIRED]
+            'daily_summary': daily_summary,
+            'needs_attention': na,
+            'good_to_know': gtk,
+            'no_attention': no_att,
         }
-        
+
         return self.email_template.render(**context)
+
+    def _build_daily_summary(
+        self,
+        needs_attention: List[NewsArticle],
+        good_to_know: List[NewsArticle],
+        no_attention: List[NewsArticle],
+    ) -> str:
+        """Build a one-line summary across all categories."""
+        all_articles = needs_attention + good_to_know + no_attention
+        if not all_articles:
+            return "No visa-related news today."
+
+        topics = set()
+        for a in all_articles:
+            if a.analysis_result and hasattr(a.analysis_result, 'affected_visa_types'):
+                for vt in a.analysis_result.affected_visa_types:
+                    topics.add(vt)
+            else:
+                for kw in (a.keywords or []):
+                    if kw.upper() in ("H1B", "H-1B", "F1", "F-1", "GREEN CARD", "L1", "L-1", "O1", "O-1"):
+                        topics.add(kw.upper().replace("1B", "-1B").replace("F1", "F-1"))
+
+        parts = []
+        if needs_attention:
+            parts.append(f"{len(needs_attention)} urgent")
+        if good_to_know:
+            parts.append(f"{len(good_to_know)} worth noting")
+        if no_attention:
+            parts.append(f"{len(no_attention)} general")
+
+        count_str = ", ".join(parts)
+        topic_str = f" Topics: {', '.join(sorted(topics))}." if topics else ""
+        return f"{len(all_articles)} articles today ({count_str}).{topic_str}"
     
     async def _send_email(self, subject: str, html_content: str) -> bool:
         """실제 이메일 전송"""
