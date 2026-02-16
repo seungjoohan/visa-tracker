@@ -1,0 +1,71 @@
+name: Update Knowledge Base
+
+# === WHEN DOES THIS RUN? ===
+# 1. Weekly on Sundays at 6am UTC — checks if eCFR Title 8 has been updated
+# 2. Manual trigger — for on-demand re-ingestion (e.g., you hear about a rule change)
+
+on:
+  schedule:
+    - cron: "0 6 * * 0"  # Every Sunday at 6am UTC
+  workflow_dispatch:
+    inputs:
+      force_reingest:
+        description: "Force re-ingestion even if no eCFR update detected"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  check-and-ingest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Need full history to push commits back
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check for eCFR updates
+        id: check
+        run: |
+          result=$(python scripts/check_ecfr_update.py)
+          echo "result=$result" >> $GITHUB_OUTPUT
+          echo "eCFR check result: $result"
+
+      - name: Re-ingest knowledge base
+        if: steps.check.outputs.result == 'CHANGED' || github.event.inputs.force_reingest == 'true'
+        run: |
+          echo "Re-ingesting knowledge base..."
+          python scripts/ingest_uscis.py --clear
+
+      - name: Commit updated index
+        if: steps.check.outputs.result == 'CHANGED' || github.event.inputs.force_reingest == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add knowledge_base/index/ knowledge_base/last_ecfr_update.txt
+          # Only commit if there are actual changes
+          git diff --staged --quiet || git commit -m "chore: update knowledge base (eCFR Title 8 updated)"
+          git push
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check.outputs.result }}" = "CHANGED" ] || [ "${{ github.event.inputs.force_reingest }}" = "true" ]; then
+            echo "✅ Knowledge base was re-ingested and committed."
+          else
+            echo "ℹ️ No eCFR update detected. Knowledge base unchanged."
+          fi
