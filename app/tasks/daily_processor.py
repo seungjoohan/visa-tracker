@@ -119,16 +119,26 @@ async def run_daily_process():
         return False
 
 def remove_duplicates(articles: List[NewsArticle]) -> List[NewsArticle]:
-    """URL 기반으로 중복 기사 제거"""
+    """Remove duplicate articles by URL and title.
+
+    Deduplicates on two keys:
+    1. URL (exact match after stripping query params and trailing slashes)
+    2. Title (exact match — catches same article with different tracking URLs)
+    """
     seen_urls: Set[str] = set()
+    seen_titles: Set[str] = set()
     unique_articles = []
 
     for article in articles:
-        url_str = str(article.url)
-        if url_str not in seen_urls:
-            seen_urls.add(url_str)
-            unique_articles.append(article)
-        else:
+        url_str = str(article.url).rstrip("/").split("?")[0]
+        title_key = article.title.strip().lower()
+
+        if url_str in seen_urls or title_key in seen_titles:
             logger.debug(f"Duplicate article removed: {article.title[:50]}...")
+            continue
+
+        seen_urls.add(url_str)
+        seen_titles.add(title_key)
+        unique_articles.append(article)
 
     return unique_articles
