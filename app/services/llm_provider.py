@@ -23,6 +23,7 @@ is behind it. This lets us swap providers without changing any analysis code.
 - For 50 articles/day × ~800 token prompts: ~$0.03/day
 """
 
+import asyncio
 import time
 import logging
 from abc import ABC, abstractmethod
@@ -125,7 +126,25 @@ class ClaudeProvider(LLMProvider):
         if system:
             kwargs["system"] = system
 
-        response = await client.messages.create(**kwargs)
+        # Retry on 529 overload with exponential backoff.
+        # Anthropic occasionally returns 529 under high load — it's transient.
+        # We retry up to 3 times: wait 5s, then 10s, then give up.
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = await client.messages.create(**kwargs)
+                break
+            except Exception as e:
+                is_overload = "529" in str(e) or "overloaded" in str(e).lower()
+                if is_overload and attempt < max_retries - 1:
+                    wait = 5 * (2 ** attempt)  # 5s, 10s
+                    logger.warning(
+                        f"Anthropic API overloaded (attempt {attempt + 1}/{max_retries}), "
+                        f"retrying in {wait}s..."
+                    )
+                    await asyncio.sleep(wait)
+                else:
+                    raise
 
         elapsed_ms = (time.monotonic() - start) * 1000
 

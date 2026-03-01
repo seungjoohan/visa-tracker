@@ -1,3 +1,4 @@
+import re
 import logging
 from typing import List, Set
 from datetime import datetime
@@ -25,7 +26,9 @@ async def run_daily_process():
             logger.error("No news collectors available - check API keys")
             return False
 
-        keywords = ["visa", "immigration", "h1b", "green card", "citizenship", "f1", "f-1", "work permit"]
+        # "f1" removed — it matches Formula 1 racing articles.
+        # "f-1" (with dash) is kept since F1 racing always omits the dash.
+        keywords = ["visa", "immigration", "h1b", "green card", "citizenship", "f-1 visa", "student visa", "work permit"]
 
         # 1. 뉴스 수집
         with pipeline_logger.log_stage("collect", {"sources": len(collectors)}):
@@ -118,12 +121,26 @@ async def run_daily_process():
         logger.error(f"Error in daily processing: {e}")
         return False
 
+def _normalize_title(title: str) -> str:
+    """Normalize title for dedup: lowercase, strip all non-alphanumeric chars.
+
+    This catches minor syndication variants where the same story has slightly
+    different punctuation, quotes, or whitespace across sources.
+    Example: "F1's engine rule row" == "F1s engine rule row" after normalization.
+    """
+    t = title.lower()
+    t = re.sub(r'[^a-z0-9\s]', '', t)  # keep only letters, digits, spaces
+    t = re.sub(r'\s+', ' ', t).strip()
+    return t
+
+
 def remove_duplicates(articles: List[NewsArticle]) -> List[NewsArticle]:
     """Remove duplicate articles by URL and title.
 
     Deduplicates on two keys:
     1. URL (exact match after stripping query params and trailing slashes)
-    2. Title (exact match — catches same article with different tracking URLs)
+    2. Normalized title (lowercased + punctuation stripped) — catches the same
+       story published by multiple outlets with minor title variations.
     """
     seen_urls: Set[str] = set()
     seen_titles: Set[str] = set()
@@ -131,7 +148,7 @@ def remove_duplicates(articles: List[NewsArticle]) -> List[NewsArticle]:
 
     for article in articles:
         url_str = str(article.url).rstrip("/").split("?")[0]
-        title_key = article.title.strip().lower()
+        title_key = _normalize_title(article.title)
 
         if url_str in seen_urls or title_key in seen_titles:
             logger.debug(f"Duplicate article removed: {article.title[:50]}...")

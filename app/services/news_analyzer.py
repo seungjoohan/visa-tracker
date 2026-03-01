@@ -70,8 +70,10 @@ class NewsAnalyzer:
         self._classify_prompt = self._load_prompt("classify.txt")
 
         # 비자 관련 키워드들
+        # "f1" removed — it matches Formula 1 racing. "f-1" (with dash) is kept
+        # because F1 racing is always written without the dash.
         self.visa_keywords = [
-            "visa", "h1b", "h-1b", "f1", "f-1", "green card", "citizenship",
+            "visa", "h1b", "h-1b", "f-1", "green card", "citizenship",
             "immigration", "uscis", "dhs", "cbp", "ice", "work permit",
             "student visa", "tourist visa", "l1", "l-1", "o1", "o-1",
             "eb1", "eb2", "eb3", "eb5", "diversity visa", "naturalization", "permanent resident"
