@@ -48,6 +48,11 @@ jobs:
 
       - name: Re-ingest knowledge base
         if: steps.check.outputs.result == 'CHANGED' || github.event.inputs.force_reingest == 'true'
+        env:
+          # Dummy values — ingestion only uses embedding settings, not these.
+          NEWSAPI_KEY: "unused"
+          EMAIL_USER: "unused"
+          EMAIL_PASSWORD: "unused"
         run: |
           echo "Re-ingesting knowledge base..."
           python scripts/ingest_uscis.py --clear
